@@ -16,9 +16,18 @@ export default defineConfig((config) => {
     define: {
       'process.env.NODE_ENV': JSON.stringify(process.env.NODE_ENV),
     },
+
+    // ✅ UPDATED BUILD CONFIG (memory optimization)
     build: {
       target: 'esnext',
+      chunkSizeWarningLimit: 2000,
+      rollupOptions: {
+        output: {
+          manualChunks: undefined,
+        },
+      },
     },
+
     plugins: [
       nodePolyfills({
         include: ['buffer', 'process', 'util', 'stream'],
@@ -57,6 +66,7 @@ export default defineConfig((config) => {
       chrome129IssuePlugin(),
       config.mode === 'production' && optimizeCssModules({ apply: 'build' }),
     ],
+
     envPrefix: [
       'VITE_',
       'OPENAI_LIKE_API_BASE_URL',
@@ -65,6 +75,7 @@ export default defineConfig((config) => {
       'LMSTUDIO_API_BASE_URL',
       'TOGETHER_API_BASE_URL',
     ],
+
     css: {
       preprocessorOptions: {
         scss: {
@@ -72,6 +83,7 @@ export default defineConfig((config) => {
         },
       },
     },
+
     test: {
       exclude: [
         '**/node_modules/**',
@@ -79,7 +91,7 @@ export default defineConfig((config) => {
         '**/cypress/**',
         '**/.{idea,git,cache,output,temp}/**',
         '**/{karma,rollup,webpack,vite,vitest,jest,ava,babel,nyc,cypress,tsup,build}.config.*',
-        '**/tests/preview/**', // Exclude preview tests that require Playwright
+        '**/tests/preview/**',
       ],
     },
   };
