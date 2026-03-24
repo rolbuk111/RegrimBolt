@@ -180,7 +180,7 @@ export default function VercelTab() {
         const currentState = vercelConnection.get();
 
         if (!currentState.user) {
-          console.log('No server-side Vercel token available, manual connection required');
+          // No token available, manual connection required
         }
       } catch (error) {
         console.error('Failed to initialize Vercel connection:', error);
@@ -710,8 +710,6 @@ export default function VercelTab() {
     handleProjectAction,
     projectActions,
   ]);
-
-  console.log('connection', connection);
 
   return (
     <div className="space-y-6">

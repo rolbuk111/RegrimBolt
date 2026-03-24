@@ -6,30 +6,50 @@ export interface Feature {
   releaseDate: string;
 }
 
+const FEATURES_STORAGE_KEY = 'bolt_viewed_features';
+const KNOWN_FEATURES: Omit<Feature, 'viewed'>[] = [
+  {
+    id: 'dark-mode',
+    name: 'Dark Mode',
+    description: 'Enable dark mode for better night viewing',
+    releaseDate: '2024-03-15',
+  },
+  {
+    id: 'tab-management',
+    name: 'Tab Management',
+    description: 'Customize your tab layout',
+    releaseDate: '2024-03-20',
+  },
+];
+
+function getViewedFeatures(): Set<string> {
+  try {
+    const stored = localStorage.getItem(FEATURES_STORAGE_KEY);
+    return new Set(stored ? JSON.parse(stored) : []);
+  } catch {
+    return new Set();
+  }
+}
+
+function saveViewedFeatures(viewed: Set<string>): void {
+  try {
+    localStorage.setItem(FEATURES_STORAGE_KEY, JSON.stringify(Array.from(viewed)));
+  } catch {
+    // localStorage unavailable (SSR or private browsing)
+  }
+}
+
 export const getFeatureFlags = async (): Promise<Feature[]> => {
-  /*
-   * TODO: Implement actual feature flags logic
-   * This is a mock implementation
-   */
-  return [
-    {
-      id: 'feature-1',
-      name: 'Dark Mode',
-      description: 'Enable dark mode for better night viewing',
-      viewed: true,
-      releaseDate: '2024-03-15',
-    },
-    {
-      id: 'feature-2',
-      name: 'Tab Management',
-      description: 'Customize your tab layout',
-      viewed: false,
-      releaseDate: '2024-03-20',
-    },
-  ];
+  const viewed = getViewedFeatures();
+
+  return KNOWN_FEATURES.map((feature) => ({
+    ...feature,
+    viewed: viewed.has(feature.id),
+  }));
 };
 
 export const markFeatureViewed = async (featureId: string): Promise<void> => {
-  /* TODO: Implement actual feature viewed logic */
-  console.log(`Marking feature ${featureId} as viewed`);
+  const viewed = getViewedFeatures();
+  viewed.add(featureId);
+  saveViewedFeatures(viewed);
 };
