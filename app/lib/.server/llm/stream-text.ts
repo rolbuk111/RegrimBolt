@@ -80,15 +80,15 @@ export async function streamText(props: {
     chatMode,
     designScheme,
   } = props;
-  let currentModel = DEFAULT_MODEL;
-  let currentProvider = DEFAULT_PROVIDER.name;
+
+  // Server-side managed model — override anything the client sends
+  const currentModel = process.env.MANAGED_MODEL || DEFAULT_MODEL;
+  const currentProvider = process.env.MANAGED_PROVIDER || DEFAULT_PROVIDER.name;
   let processedMessages = messages.map((message) => {
     const newMessage = { ...message };
 
     if (message.role === 'user') {
-      const { model, provider, content } = extractPropertiesFromMessage(message);
-      currentModel = model;
-      currentProvider = provider;
+      const { content } = extractPropertiesFromMessage(message);
       newMessage.content = sanitizeText(content);
     } else if (message.role == 'assistant') {
       newMessage.content = sanitizeText(message.content);
