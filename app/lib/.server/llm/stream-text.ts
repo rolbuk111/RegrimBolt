@@ -39,8 +39,8 @@ function getCompletionTokenLimit(modelDetails: any): number {
     return providerDefault;
   }
 
-  // 3. Final fallback to MAX_TOKENS, but cap at reasonable limit for safety
-  return Math.min(MAX_TOKENS, 16384);
+  // 3. Final fallback to MAX_TOKENS
+  return MAX_TOKENS;
 }
 
 function sanitizeText(text: string): string {
@@ -132,15 +132,16 @@ export async function streamText(props: {
         );
       }
 
-      // Fallback to first model with warning
-      logger.warn(
-        `MODEL [${currentModel}] not found in provider [${provider.name}]. Falling back to first model. ${modelsList[0].name}`,
+      throw new Error(
+        `Model "${currentModel}" not found in provider "${provider.name}". Available models: ${modelsList
+          .slice(0, 5)
+          .map((m) => m.name)
+          .join(', ')}${modelsList.length > 5 ? ` and ${modelsList.length - 5} more` : ''}.`,
       );
-      modelDetails = modelsList[0];
     }
   }
 
-  const dynamicMaxTokens = modelDetails ? getCompletionTokenLimit(modelDetails) : Math.min(MAX_TOKENS, 16384);
+  const dynamicMaxTokens = modelDetails ? getCompletionTokenLimit(modelDetails) : MAX_TOKENS;
 
   // Use model-specific limits directly - no artificial cap needed
   const safeMaxTokens = dynamicMaxTokens;
@@ -215,8 +216,6 @@ export async function streamText(props: {
     ${lockedFilesListString}
     ---
     `;
-  } else {
-    console.log('No locked files found from any source for prompt.');
   }
 
   logger.info(`Sending llm call to ${provider.name} with model ${modelDetails.name}`);

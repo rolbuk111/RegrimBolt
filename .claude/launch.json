@@ -1,0 +1,23 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "Remix Dev Server",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["C:\\Users\\rolbu\\AppData\\Roaming\\npm\\node_modules\\pnpm\\bin\\pnpm.cjs", "run", "dev"],
+      "port": 5173
+    },
+    {
+      "name": "Wrangler Preview (Production Build)",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["C:\\Users\\rolbu\\AppData\\Roaming\\npm\\node_modules\\pnpm\\bin\\pnpm.cjs", "run", "start"],
+      "port": 5173
+    },
+    {
+      "name": "Electron Dev",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["scripts/electron-dev.mjs"],
+      "port": 5173
+    }
+  ]
+}
