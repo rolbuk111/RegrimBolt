@@ -13,10 +13,19 @@ export default class AnthropicProvider extends BaseProvider {
   };
 
   staticModels: ModelInfo[] = [
-    // Claude Sonnet 4.5: 200k context, 64k output — best balance of speed and quality
+    // Claude Sonnet 4.5 (latest): 200k context, 64k output — best balance of speed and quality
+    {
+      name: 'claude-sonnet-4-5-20250929',
+      label: 'Claude Sonnet 4.5',
+      provider: 'Anthropic',
+      maxTokenAllowed: 200000,
+      maxCompletionTokens: 64000,
+    },
+
+    // Claude Sonnet 4.5 (previous): 200k context, 64k output
     {
       name: 'claude-sonnet-4-5-20250514',
-      label: 'Claude Sonnet 4.5',
+      label: 'Claude Sonnet 4.5 (May)',
       provider: 'Anthropic',
       maxTokenAllowed: 200000,
       maxCompletionTokens: 64000,
