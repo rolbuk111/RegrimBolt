@@ -114,6 +114,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
 import { logStore } from './lib/stores/logs';
 import { initializeNetlifyConnection } from './lib/stores/netlify';
+import { DeploySuccessModal } from './components/deploy/DeploySuccessModal';
 
 export default function App() {
   const theme = useStore(themeStore);
@@ -150,6 +151,7 @@ export default function App() {
   return (
     <Layout>
       <Outlet />
+      <ClientOnly>{() => <DeploySuccessModal />}</ClientOnly>
     </Layout>
   );
 }

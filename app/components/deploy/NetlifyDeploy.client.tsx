@@ -1,6 +1,7 @@
 import { toast } from 'react-toastify';
 import { useStore } from '@nanostores/react';
 import { netlifyConnection } from '~/lib/stores/netlify';
+import { deploySuccessUrl } from '~/lib/stores/deploySuccess';
 import { workbenchStore } from '~/lib/stores/workbench';
 import { webcontainer } from '~/lib/webcontainer';
 import { path } from '~/utils/path';
@@ -227,8 +228,8 @@ export function useNetlifyDeploy() {
         source: 'netlify',
       });
 
-      // Show success toast notification
-      toast.success(`🚀 Netlify deployment completed successfully!`);
+      // Show success modal
+      deploySuccessUrl.set(deploymentStatus.ssl_url || deploymentStatus.url);
 
       return true;
     } catch (error) {
