@@ -330,6 +330,7 @@ export const ChatImpl = memo(
       ]);
 
       chatStore.setKey('started', true);
+      workbenchStore.showWorkbench.set(true);
 
       setChatStarted(true);
     };
