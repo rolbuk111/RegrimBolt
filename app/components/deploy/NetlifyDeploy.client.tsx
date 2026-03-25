@@ -136,7 +136,24 @@ export function useNetlifyDeploy() {
         return files;
       }
 
-      const fileContents = await getAllFiles(finalBuildPath);
+      let fileContents: Record<string, string>;
+
+      if (isStaticProject) {
+        // Use workbench store files directly — avoids filesystem path issues
+        fileContents = {};
+
+        const storeFiles = workbenchStore.files.get();
+
+        for (const [filePath, dirent] of Object.entries(storeFiles)) {
+          if (dirent?.type === 'file' && !dirent.isBinary) {
+            // Strip /home/project prefix for deploy paths
+            const deployPath = filePath.replace('/home/project', '') || filePath;
+            fileContents[deployPath] = dirent.content;
+          }
+        }
+      } else {
+        fileContents = await getAllFiles(finalBuildPath);
+      }
 
       // Use chatId instead of artifact.id
       const existingSiteId = localStorage.getItem(`netlify-site-${currentChatId}`);
