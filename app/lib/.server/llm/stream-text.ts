@@ -81,9 +81,9 @@ export async function streamText(props: {
     designScheme,
   } = props;
 
-  // Server-side managed model — override anything the client sends
-  const currentModel = process.env.MANAGED_MODEL || DEFAULT_MODEL;
-  const currentProvider = process.env.MANAGED_PROVIDER || DEFAULT_PROVIDER.name;
+  // Server-side managed model — check Cloudflare env first (Wrangler/Railway), then process.env (local)
+  const currentModel = (serverEnv as any)?.MANAGED_MODEL || process.env.MANAGED_MODEL || DEFAULT_MODEL;
+  const currentProvider = (serverEnv as any)?.MANAGED_PROVIDER || process.env.MANAGED_PROVIDER || DEFAULT_PROVIDER.name;
   let processedMessages = messages.map((message) => {
     const newMessage = { ...message };
 
