@@ -113,11 +113,14 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 import { logStore } from './lib/stores/logs';
+import { initializeNetlifyConnection } from './lib/stores/netlify';
 
 export default function App() {
   const theme = useStore(themeStore);
 
   useEffect(() => {
+    initializeNetlifyConnection();
+
     logStore.logSystem('Application initialized', {
       theme,
       platform: navigator.platform,
