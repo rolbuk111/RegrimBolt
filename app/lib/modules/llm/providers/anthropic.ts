@@ -13,40 +13,16 @@ export default class AnthropicProvider extends BaseProvider {
   };
 
   staticModels: ModelInfo[] = [
-    // Claude Sonnet 4.5 (latest): 200k context, 64k output — best balance of speed and quality
-    {
-      name: 'claude-sonnet-4-5-20250929',
-      label: 'Claude Sonnet 4.5',
-      provider: 'Anthropic',
-      maxTokenAllowed: 200000,
-      maxCompletionTokens: 64000,
-    },
-
-    // Claude Sonnet 4.5 (previous): 200k context, 64k output
-    {
-      name: 'claude-sonnet-4-5-20250514',
-      label: 'Claude Sonnet 4.5 (May)',
-      provider: 'Anthropic',
-      maxTokenAllowed: 200000,
-      maxCompletionTokens: 64000,
-    },
-
-    // Claude Opus 4: 200k context, 32k output — most capable model
-    {
-      name: 'claude-opus-4-20250514',
-      label: 'Claude Opus 4',
-      provider: 'Anthropic',
-      maxTokenAllowed: 200000,
-      maxCompletionTokens: 32000,
-    },
-
-    // Claude 3.5 Sonnet: 200k context, 8k output — reliable fallback
+    /*
+     * Essential fallback models - only the most stable/reliable ones
+     * Claude 3.5 Sonnet: 200k context, excellent for complex reasoning and coding
+     */
     {
       name: 'claude-3-5-sonnet-20241022',
       label: 'Claude 3.5 Sonnet',
       provider: 'Anthropic',
       maxTokenAllowed: 200000,
-      maxCompletionTokens: 8192,
+      maxCompletionTokens: 128000,
     },
 
     // Claude 3 Haiku: 200k context, fastest and most cost-effective
@@ -55,7 +31,16 @@ export default class AnthropicProvider extends BaseProvider {
       label: 'Claude 3 Haiku',
       provider: 'Anthropic',
       maxTokenAllowed: 200000,
-      maxCompletionTokens: 4096,
+      maxCompletionTokens: 128000,
+    },
+
+    // Claude Opus 4: 200k context, 32k output limit (latest flagship model)
+    {
+      name: 'claude-opus-4-20250514',
+      label: 'Claude 4 Opus',
+      provider: 'Anthropic',
+      maxTokenAllowed: 200000,
+      maxCompletionTokens: 32000,
     },
   ];
 
@@ -106,7 +91,7 @@ export default class AnthropicProvider extends BaseProvider {
       }
 
       // Determine completion token limits based on specific model
-      let maxCompletionTokens = 8192; // safe default for Claude 3 models
+      let maxCompletionTokens = 128000; // default for older Claude 3 models
 
       if (m.id?.includes('claude-opus-4')) {
         maxCompletionTokens = 32000; // Claude 4 Opus: 32K output limit
@@ -114,8 +99,6 @@ export default class AnthropicProvider extends BaseProvider {
         maxCompletionTokens = 64000; // Claude 4 Sonnet: 64K output limit
       } else if (m.id?.includes('claude-4')) {
         maxCompletionTokens = 32000; // Other Claude 4 models: conservative 32K limit
-      } else if (m.id === 'claude-3-7-sonnet-20250219') {
-        maxCompletionTokens = 128000; // claude-3-7-sonnet supports 128k output with beta header
       }
 
       return {
@@ -142,18 +125,10 @@ export default class AnthropicProvider extends BaseProvider {
       defaultBaseUrlKey: '',
       defaultApiTokenKey: 'ANTHROPIC_API_KEY',
     });
-
-    /*
-     * The output-128k-2025-02-19 beta header only works for claude-3-7-sonnet-20250219.
-     * Sending it to other models causes the Anthropic API to reject the request.
-     */
-    const headers: Record<string, string> = {};
-
-    if (model === 'claude-3-7-sonnet-20250219') {
-      headers['anthropic-beta'] = 'output-128k-2025-02-19';
-    }
-
-    const anthropic = createAnthropic({ apiKey, headers });
+    const anthropic = createAnthropic({
+      apiKey,
+      headers: { 'anthropic-beta': 'output-128k-2025-02-19' },
+    });
 
     return anthropic(model);
   };

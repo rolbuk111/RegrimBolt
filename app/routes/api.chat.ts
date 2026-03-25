@@ -8,7 +8,7 @@ import type { IProviderSetting } from '~/types/model';
 import { createScopedLogger } from '~/utils/logger';
 import { getFilePaths, selectContext } from '~/lib/.server/llm/select-context';
 import type { ContextAnnotation, ProgressAnnotation } from '~/types/context';
-import { DEFAULT_MODEL, DEFAULT_PROVIDER_NAME, WORK_DIR } from '~/utils/constants';
+import { WORK_DIR } from '~/utils/constants';
 import { createSummary } from '~/lib/.server/llm/create-summary';
 import { extractPropertiesFromMessage } from '~/lib/.server/llm/utils';
 import type { DesignScheme } from '~/types/design-scheme';
@@ -39,49 +39,6 @@ function parseCookies(cookieHeader: string): Record<string, string> {
   return cookies;
 }
 
-/*
- * Rewrites [Model:] and [Provider:] tags in user messages to always use
- * the server-managed model. This ensures all downstream functions
- * (streamText, createSummary, selectContext) use the same model.
- */
-function injectManagedModel(messages: Messages): Messages {
-  const prefix = `[Model: ${DEFAULT_MODEL}]\n\n[Provider: ${DEFAULT_PROVIDER_NAME}]\n\n`;
-
-  return messages.map((message) => {
-    if (message.role !== 'user') {
-      return message;
-    }
-
-    const rawContent = message.content as unknown;
-
-    if (Array.isArray(rawContent)) {
-      let prefixAdded = false;
-
-      const newContent = rawContent.map((part: any) => {
-        if (part.type === 'text' && !prefixAdded) {
-          prefixAdded = true;
-
-          const cleaned = String(part.text)
-            .replace(/^\[Model: .*?\]\n\n/, '')
-            .replace(/\[Provider: .*?\]\n\n/, '');
-
-          return { ...part, text: prefix + cleaned };
-        }
-
-        return part;
-      });
-
-      return { ...message, content: newContent as unknown as string };
-    }
-
-    const cleaned = String(rawContent)
-      .replace(/^\[Model: .*?\]\n\n/, '')
-      .replace(/\[Provider: .*?\]\n\n/, '');
-
-    return { ...message, content: prefix + cleaned };
-  });
-}
-
 async function chatAction({ context, request }: ActionFunctionArgs) {
   const streamRecovery = new StreamRecoveryManager({
     timeout: 45000,
@@ -110,21 +67,11 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
       maxLLMSteps: number;
     }>();
 
-  const managedMessages = injectManagedModel(messages);
-
   const cookieHeader = request.headers.get('Cookie');
   const apiKeys = JSON.parse(parseCookies(cookieHeader || '').apiKeys || '{}');
   const providerSettings: Record<string, IProviderSetting> = JSON.parse(
     parseCookies(cookieHeader || '').providers || '{}',
   );
-
-  /*
-   * Inject server-side Anthropic key so users don't need to enter it.
-   * Only applies if the client hasn't already provided a key.
-   */
-  if (process.env.ANTHROPIC_API_KEY && !apiKeys.Anthropic) {
-    apiKeys.Anthropic = process.env.ANTHROPIC_API_KEY;
-  }
 
   const stream = new SwitchableStream();
 
@@ -138,7 +85,7 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
 
   try {
     const mcpService = MCPService.getInstance();
-    const totalMessageContent = managedMessages.reduce((acc, message) => acc + message.content, '');
+    const totalMessageContent = messages.reduce((acc, message) => acc + message.content, '');
     logger.debug(`Total message length: ${totalMessageContent.split(' ').length}, words`);
 
     let lastChunk: string | undefined = undefined;
@@ -152,7 +99,7 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
         let summary: string | undefined = undefined;
         let messageSliceId = 0;
 
-        const processedMessages = await mcpService.processToolInvocations(managedMessages, dataStream);
+        const processedMessages = await mcpService.processToolInvocations(messages, dataStream);
 
         if (processedMessages.length > 3) {
           messageSliceId = processedMessages.length - 3;

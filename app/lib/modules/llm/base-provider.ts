@@ -2,6 +2,7 @@ import type { LanguageModelV1 } from 'ai';
 import type { ProviderInfo, ProviderConfig, ModelInfo } from './types';
 import type { IProviderSetting } from '~/types/model';
 import { createOpenAI } from '@ai-sdk/openai';
+import { LLMManager } from './manager';
 
 /** Default timeout for model listing API calls (5 seconds) */
 const MODEL_FETCH_TIMEOUT = 5_000;
@@ -70,20 +71,27 @@ export abstract class BaseProvider implements ProviderInfo {
   }) {
     const { apiKeys, providerSettings, serverEnv, defaultBaseUrlKey, defaultApiTokenKey } = options;
     let settingsBaseUrl = providerSettings?.baseUrl;
+    const manager = LLMManager.getInstance();
 
     if (settingsBaseUrl && settingsBaseUrl.length == 0) {
       settingsBaseUrl = undefined;
     }
 
     const baseUrlKey = this.config.baseUrlKey || defaultBaseUrlKey;
-    let baseUrl = settingsBaseUrl || serverEnv?.[baseUrlKey] || process?.env?.[baseUrlKey] || this.config.baseUrl;
+    let baseUrl =
+      settingsBaseUrl ||
+      serverEnv?.[baseUrlKey] ||
+      process?.env?.[baseUrlKey] ||
+      manager.env?.[baseUrlKey] ||
+      this.config.baseUrl;
 
     if (baseUrl && baseUrl.endsWith('/')) {
       baseUrl = baseUrl.slice(0, -1);
     }
 
     const apiTokenKey = this.config.apiTokenKey || defaultApiTokenKey;
-    const apiKey = apiKeys?.[this.name] || serverEnv?.[apiTokenKey] || process?.env?.[apiTokenKey];
+    const apiKey =
+      apiKeys?.[this.name] || serverEnv?.[apiTokenKey] || process?.env?.[apiTokenKey] || manager.env?.[apiTokenKey];
 
     return {
       baseUrl,
