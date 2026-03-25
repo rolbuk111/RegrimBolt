@@ -51,6 +51,21 @@ export function DeploySuccessModal() {
               </p>
             </div>
 
+            {/* QR Code */}
+            <motion.div
+              className="flex flex-col items-center gap-2"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.2 }}
+            >
+              <img
+                src={`https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(url)}&color=1d4ed8&bgcolor=ffffff&margin=10&qzone=1`}
+                alt="QR code to your website"
+                className="w-40 h-40 rounded-xl border border-gray-200 dark:border-white/10"
+              />
+              <p className="text-xs text-gray-400 dark:text-gray-500">Scan to open on your phone</p>
+            </motion.div>
+
             {/* URL pill */}
             <div className="w-full flex items-center gap-2 bg-gray-50 dark:bg-white/5 border border-gray-200 dark:border-white/10 rounded-xl px-4 py-3">
               <div className="i-ph:globe w-4 h-4 text-gray-400 shrink-0" />
