@@ -80,7 +80,6 @@ export async function streamText(props: {
     chatMode,
     designScheme,
   } = props;
-
   let currentModel = DEFAULT_MODEL;
   let currentProvider = DEFAULT_PROVIDER.name;
   let processedMessages = messages.map((message) => {
@@ -126,10 +125,18 @@ export async function streamText(props: {
     modelDetails = modelsList.find((m) => m.name === currentModel);
 
     if (!modelDetails) {
-      // Fall back to the first available model in the provider rather than throwing
-      modelDetails = modelsList[0];
-      logger.warn(
-        `Model "${currentModel}" not found in provider "${provider.name}", falling back to "${modelDetails.name}"`,
+      // Check if it's a Google provider and the model name looks like it might be incorrect
+      if (provider.name === 'Google' && currentModel.includes('2.5')) {
+        throw new Error(
+          `Model "${currentModel}" not found. Gemini 2.5 Pro doesn't exist. Available Gemini models include: gemini-1.5-pro, gemini-2.0-flash, gemini-1.5-flash. Please select a valid model.`,
+        );
+      }
+
+      throw new Error(
+        `Model "${currentModel}" not found in provider "${provider.name}". Available models: ${modelsList
+          .slice(0, 5)
+          .map((m) => m.name)
+          .join(', ')}${modelsList.length > 5 ? ` and ${modelsList.length - 5} more` : ''}.`,
       );
     }
   }

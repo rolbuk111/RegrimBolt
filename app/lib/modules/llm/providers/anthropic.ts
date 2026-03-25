@@ -13,14 +13,10 @@ export default class AnthropicProvider extends BaseProvider {
   };
 
   staticModels: ModelInfo[] = [
-    // Claude Sonnet 4.6 — default managed model
-    {
-      name: 'claude-sonnet-4-6',
-      label: 'Claude Sonnet 4.6',
-      provider: 'Anthropic',
-      maxTokenAllowed: 200000,
-      maxCompletionTokens: 64000,
-    },
+    /*
+     * Essential fallback models - only the most stable/reliable ones
+     * Claude 3.5 Sonnet: 200k context, excellent for complex reasoning and coding
+     */
     {
       name: 'claude-3-5-sonnet-20241022',
       label: 'Claude 3.5 Sonnet',
