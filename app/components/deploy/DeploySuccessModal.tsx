@@ -30,12 +30,12 @@ export function DeploySuccessModal() {
           onClick={(e) => e.stopPropagation()}
         >
           {/* Top accent bar */}
-          <div className="h-1 w-full bg-gradient-to-r from-green-400 via-emerald-400 to-teal-400" />
+          <div className="h-1 w-full bg-gradient-to-r from-blue-500 via-blue-600 to-purple-600" />
 
           <div className="p-8 flex flex-col items-center gap-5 text-center">
             {/* Icon */}
             <motion.div
-              className="w-16 h-16 rounded-full bg-green-50 dark:bg-green-900/20 flex items-center justify-center text-3xl"
+              className="w-16 h-16 rounded-full bg-blue-50 dark:bg-blue-900/20 flex items-center justify-center text-3xl"
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ type: 'spring', stiffness: 300, damping: 20, delay: 0.1 }}
@@ -80,7 +80,7 @@ export function DeploySuccessModal() {
                 href={url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex-1 py-2.5 rounded-xl bg-black text-white text-sm font-semibold hover:bg-gray-800 transition-colors flex items-center justify-center gap-2"
+                className="flex-1 py-2.5 rounded-xl bg-blue-600 text-white text-sm font-semibold hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
               >
                 <div className="i-ph:arrow-square-out w-4 h-4" />
                 Visit Site
