@@ -3,7 +3,10 @@
     "allow": [
       "Bash(grep -E \"\\\\.ts$\")",
       "Bash(node \"C:/Users/rolbu/AppData/Roaming/npm/node_modules/pnpm/bin/pnpm.cjs\" typecheck)",
-      "Bash(node \"C:/Users/rolbu/AppData/Roaming/npm/node_modules/pnpm/bin/pnpm.cjs\" lint)"
+      "Bash(node \"C:/Users/rolbu/AppData/Roaming/npm/node_modules/pnpm/bin/pnpm.cjs\" lint)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)"
     ]
   }
 }

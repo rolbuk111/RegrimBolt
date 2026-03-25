@@ -1,15 +1,33 @@
 import { useStore } from '@nanostores/react';
 import { motion, AnimatePresence } from 'framer-motion';
+import QRCode from 'qrcode';
+import { useEffect, useState } from 'react';
 import { deploySuccessUrl } from '~/lib/stores/deploySuccess';
 
 export function DeploySuccessModal() {
   const url = useStore(deploySuccessUrl);
+  const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!url) {
+      return;
+    }
+
+    QRCode.toDataURL(url, {
+      width: 200,
+      margin: 2,
+      color: { dark: '#1d4ed8', light: '#ffffff' },
+    }).then(setQrDataUrl);
+  }, [url]);
 
   if (!url) {
     return null;
   }
 
-  const handleClose = () => deploySuccessUrl.set(null);
+  const handleClose = () => {
+    deploySuccessUrl.set(null);
+    setQrDataUrl(null);
+  };
 
   return (
     <AnimatePresence>
@@ -58,11 +76,17 @@ export function DeploySuccessModal() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.2 }}
             >
-              <img
-                src={`https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=${encodeURIComponent(url)}&color=1d4ed8&bgcolor=ffffff&margin=10&qzone=1`}
-                alt="QR code to your website"
-                className="w-40 h-40 rounded-xl border border-gray-200 dark:border-white/10"
-              />
+              {qrDataUrl ? (
+                <img
+                  src={qrDataUrl}
+                  alt="QR code to your website"
+                  className="w-40 h-40 rounded-xl border border-gray-200 dark:border-white/10"
+                />
+              ) : (
+                <div className="w-40 h-40 rounded-xl border border-gray-200 dark:border-white/10 flex items-center justify-center">
+                  <div className="i-ph:spinner-gap w-6 h-6 animate-spin text-blue-500" />
+                </div>
+              )}
               <p className="text-xs text-gray-400 dark:text-gray-500">Scan to open on your phone</p>
             </motion.div>
 
