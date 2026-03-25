@@ -50,8 +50,9 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
     }>();
 
   // Managed keys — always use server-side env var, ignore any client-provided keys
+  const cfEnv = (context?.cloudflare?.env as any) || {};
   const apiKeys: Record<string, string> = {
-    Anthropic: process.env.ANTHROPIC_API_KEY || '',
+    ANTHROPIC_API_KEY: process.env.ANTHROPIC_API_KEY || cfEnv.ANTHROPIC_API_KEY || '',
   };
   const providerSettings: Record<string, IProviderSetting> = {};
 
