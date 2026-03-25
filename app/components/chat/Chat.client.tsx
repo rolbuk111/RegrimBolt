@@ -192,6 +192,16 @@ export const ChatImpl = memo(
       }
     }, [model, provider, searchParams]);
 
+    // Pre-fill chat with a generated app idea passed from regrim.com via ?idea=
+    useEffect(() => {
+      const idea = searchParams.get('idea');
+
+      if (idea && !chatStarted) {
+        setInput(decodeURIComponent(idea));
+        setSearchParams({});
+      }
+    }, []);
+
     const { enhancingPrompt, promptEnhanced, enhancePrompt, resetEnhancer } = usePromptEnhancer();
     const { parsedMessages, parseMessages } = useMessageParser();
 
