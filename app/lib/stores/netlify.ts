@@ -8,14 +8,11 @@ const storedConnection = typeof window !== 'undefined' ? localStorage.getItem('n
 const envToken = import.meta.env.VITE_NETLIFY_ACCESS_TOKEN;
 console.log('Netlify store: envToken loaded:', envToken ? '[TOKEN_EXISTS]' : '[NO_TOKEN]');
 
-// If we have an environment token but no stored connection, initialize with the env token
-const initialConnection: NetlifyConnection = storedConnection
-  ? JSON.parse(storedConnection)
-  : {
-      user: null,
-      token: envToken || '',
-      stats: undefined,
-    };
+// Env token always wins — stored connection only used if no env token
+const parsedStored: NetlifyConnection | null = storedConnection ? JSON.parse(storedConnection) : null;
+const initialConnection: NetlifyConnection = envToken
+  ? { ...(parsedStored || {}), token: envToken, user: parsedStored?.user || null, stats: parsedStored?.stats }
+  : parsedStored || { user: null, token: '', stats: undefined };
 
 export const netlifyConnection = atom<NetlifyConnection>(initialConnection);
 export const isConnecting = atom<boolean>(false);
