@@ -73,6 +73,14 @@ async function chatAction({ context, request }: ActionFunctionArgs) {
     parseCookies(cookieHeader || '').providers || '{}',
   );
 
+  /*
+   * Inject server-side Anthropic key so users don't need to enter it.
+   * Only applies if the client hasn't already provided a key.
+   */
+  if (process.env.ANTHROPIC_API_KEY && !apiKeys.Anthropic) {
+    apiKeys.Anthropic = process.env.ANTHROPIC_API_KEY;
+  }
+
   const stream = new SwitchableStream();
 
   const cumulativeUsage = {
