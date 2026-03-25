@@ -17,14 +17,13 @@ export async function createSummary(props: {
   onFinish?: (resp: GenerateTextResult<Record<string, CoreTool<any, any>>, never>) => void;
 }) {
   const { messages, env: serverEnv, apiKeys, providerSettings, onFinish } = props;
-
-  // Use managed model/provider from env — ignore any embedded in message content
-  const currentModel = (serverEnv as any)?.MANAGED_MODEL || process.env.MANAGED_MODEL || DEFAULT_MODEL;
-  const currentProvider = (serverEnv as any)?.MANAGED_PROVIDER || process.env.MANAGED_PROVIDER || DEFAULT_PROVIDER.name;
-
+  let currentModel = DEFAULT_MODEL;
+  let currentProvider = DEFAULT_PROVIDER.name;
   const processedMessages = messages.map((message) => {
     if (message.role === 'user') {
-      const { content } = extractPropertiesFromMessage(message);
+      const { model, provider, content } = extractPropertiesFromMessage(message);
+      currentModel = model;
+      currentProvider = provider;
 
       return { ...message, content };
     } else if (message.role == 'assistant') {

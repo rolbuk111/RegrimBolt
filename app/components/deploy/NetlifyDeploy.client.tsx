@@ -45,73 +45,74 @@ export function useNetlifyDeploy() {
 
       const deployArtifact = workbenchStore.artifacts.get()[deploymentId];
 
-      // Get the container early so we can check for package.json
-      const container = await webcontainer;
+      // Notify that build is starting
+      deployArtifact.runner.handleDeployAction('building', 'running', { source: 'netlify' });
 
-      // Check if this is a static project (no package.json)
-      let isStaticProject = false;
+      // Set up build action
+      const actionId = 'build-' + Date.now();
+      const actionData: ActionCallbackData = {
+        messageId: 'netlify build',
+        artifactId: artifact.id,
+        actionId,
+        action: {
+          type: 'build' as const,
+          content: 'npm run build',
+        },
+      };
 
-      try {
-        await container.fs.readFile('/home/project/package.json', 'utf-8');
-      } catch {
-        isStaticProject = true;
+      // Add the action first
+      artifact.runner.addAction(actionData);
+
+      // Then run it
+      await artifact.runner.runAction(actionData);
+
+      const buildOutput = artifact.runner.buildOutput;
+
+      if (!buildOutput || buildOutput.exitCode !== 0) {
+        // Notify that build failed
+        deployArtifact.runner.handleDeployAction('building', 'failed', {
+          error: formatBuildFailureOutput(buildOutput?.output),
+          source: 'netlify',
+        });
+        throw new Error('Build failed');
       }
 
-      let finalBuildPath = '/home/project';
+      // Notify that build succeeded and deployment is starting
+      deployArtifact.runner.handleDeployAction('deploying', 'running', { source: 'netlify' });
 
-      if (isStaticProject) {
-        // Static HTML/CSS/JS — skip build, deploy files directly
-        deployArtifact.runner.handleDeployAction('building', 'complete', { source: 'netlify' });
-        deployArtifact.runner.handleDeployAction('deploying', 'running', { source: 'netlify' });
-      } else {
-        // Notify that build is starting
-        deployArtifact.runner.handleDeployAction('building', 'running', { source: 'netlify' });
+      // Get the build files
+      const container = await webcontainer;
 
-        // Set up build action
-        const actionId = 'build-' + Date.now();
-        const actionData: ActionCallbackData = {
-          messageId: 'netlify build',
-          artifactId: artifact.id,
-          actionId,
-          action: {
-            type: 'build' as const,
-            content: 'npm run build',
-          },
-        };
+      // Remove /home/project from buildPath if it exists
+      const buildPath = buildOutput.path.replace('/home/project', '');
 
-        artifact.runner.addAction(actionData);
-        await artifact.runner.runAction(actionData);
+      console.log('Original buildPath', buildPath);
 
-        const buildOutput = artifact.runner.buildOutput;
+      // Check if the build path exists
+      let finalBuildPath = buildPath;
 
-        if (!buildOutput || buildOutput.exitCode !== 0) {
-          deployArtifact.runner.handleDeployAction('building', 'failed', {
-            error: formatBuildFailureOutput(buildOutput?.output),
-            source: 'netlify',
-          });
-          throw new Error('Build failed');
+      // List of common output directories to check if the specified build path doesn't exist
+      const commonOutputDirs = [buildPath, '/dist', '/build', '/out', '/output', '/.next', '/public'];
+
+      // Verify the build path exists, or try to find an alternative
+      let buildPathExists = false;
+
+      for (const dir of commonOutputDirs) {
+        try {
+          await container.fs.readdir(dir);
+          finalBuildPath = dir;
+          buildPathExists = true;
+          console.log(`Using build directory: ${finalBuildPath}`);
+          break;
+        } catch (error) {
+          // Directory doesn't exist, try the next one
+          console.log(`Directory ${dir} doesn't exist, trying next option. ${error}`);
+          continue;
         }
+      }
 
-        deployArtifact.runner.handleDeployAction('deploying', 'running', { source: 'netlify' });
-
-        const buildPath = buildOutput.path.replace('/home/project', '');
-        const commonOutputDirs = [buildPath, '/dist', '/build', '/out', '/output', '/.next', '/public'];
-        let buildPathExists = false;
-
-        for (const dir of commonOutputDirs) {
-          try {
-            await container.fs.readdir(dir);
-            finalBuildPath = dir;
-            buildPathExists = true;
-            break;
-          } catch {
-            continue;
-          }
-        }
-
-        if (!buildPathExists) {
-          throw new Error('Could not find build output directory. Please check your build configuration.');
-        }
+      if (!buildPathExists) {
+        throw new Error('Could not find build output directory. Please check your build configuration.');
       }
 
       async function getAllFiles(dirPath: string): Promise<Record<string, string>> {
@@ -136,24 +137,7 @@ export function useNetlifyDeploy() {
         return files;
       }
 
-      let fileContents: Record<string, string>;
-
-      if (isStaticProject) {
-        // Use workbench store files directly — avoids filesystem path issues
-        fileContents = {};
-
-        const storeFiles = workbenchStore.files.get();
-
-        for (const [filePath, dirent] of Object.entries(storeFiles)) {
-          if (dirent?.type === 'file' && !dirent.isBinary) {
-            // Strip /home/project prefix for deploy paths
-            const deployPath = filePath.replace('/home/project', '') || filePath;
-            fileContents[deployPath] = dirent.content;
-          }
-        }
-      } else {
-        fileContents = await getAllFiles(finalBuildPath);
-      }
+      const fileContents = await getAllFiles(finalBuildPath);
 
       // Use chatId instead of artifact.id
       const existingSiteId = localStorage.getItem(`netlify-site-${currentChatId}`);

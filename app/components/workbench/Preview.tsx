@@ -117,26 +117,6 @@ export const Preview = memo(({ setSelectedElement }: PreviewProps) => {
     }
   }, [previews, findMinPortIndex]);
 
-  // Auto-reload preview when files change (with debounce)
-  const files = useStore(workbenchStore.files);
-  const autoReloadTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  useEffect(() => {
-    if (!iframeRef.current || !iframeUrl) {
-      return;
-    }
-
-    if (autoReloadTimer.current) {
-      clearTimeout(autoReloadTimer.current);
-    }
-
-    autoReloadTimer.current = setTimeout(() => {
-      if (iframeRef.current) {
-        iframeRef.current.src = iframeRef.current.src;
-      }
-    }, 500);
-  }, [files]);
-
   const reloadPreview = () => {
     if (iframeRef.current) {
       iframeRef.current.src = iframeRef.current.src;

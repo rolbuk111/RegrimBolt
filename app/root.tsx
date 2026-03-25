@@ -113,17 +113,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 import { logStore } from './lib/stores/logs';
-import { initializeNetlifyConnection } from './lib/stores/netlify';
-import { autoConnectVercel } from './lib/stores/vercel';
 
 export default function App() {
   const theme = useStore(themeStore);
 
   useEffect(() => {
-    // Auto-connect Netlify and Vercel using env tokens on startup
-    initializeNetlifyConnection().catch(console.error);
-    autoConnectVercel().catch(console.error);
-
     logStore.logSystem('Application initialized', {
       theme,
       platform: navigator.platform,
