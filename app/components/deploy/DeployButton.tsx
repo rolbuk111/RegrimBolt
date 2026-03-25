@@ -127,130 +127,132 @@ export const DeployButton = ({
 
   return (
     <>
-      <div className="flex border border-bolt-elements-borderColor rounded-md overflow-hidden text-sm">
-        <DropdownMenu.Root>
-          <DropdownMenu.Trigger
-            disabled={isDeploying || !activePreview || isStreaming}
-            className="rounded-md items-center justify-center [&:is(:disabled,.disabled)]:cursor-not-allowed [&:is(:disabled,.disabled)]:opacity-60 px-3 py-1.5 text-xs bg-accent-500 text-white hover:text-bolt-elements-item-contentAccent [&:not(:disabled,.disabled)]:hover:bg-bolt-elements-button-primary-backgroundHover outline-accent-500 flex gap-1.7"
-          >
-            {isDeploying ? `Deploying to ${deployingTo}...` : 'Deploy'}
-            <span className={classNames('i-ph:caret-down transition-transform')} />
-          </DropdownMenu.Trigger>
-          <DropdownMenu.Content
-            className={classNames(
-              'z-[250]',
-              'bg-bolt-elements-background-depth-2',
-              'rounded-lg shadow-lg',
-              'border border-bolt-elements-borderColor',
-              'animate-in fade-in-0 zoom-in-95',
-              'py-1',
-            )}
-            sideOffset={5}
-            align="end"
-          >
-            <DropdownMenu.Item
-              className={classNames(
-                'cursor-pointer flex items-center w-full px-4 py-2 text-sm text-bolt-elements-textPrimary hover:bg-bolt-elements-item-backgroundActive gap-2 rounded-md group relative',
-                {
-                  'opacity-60 cursor-not-allowed': isDeploying || !activePreview || !netlifyConn.user,
-                },
-              )}
-              disabled={isDeploying || !activePreview || !netlifyConn.user}
-              onClick={handleNetlifyDeployClick}
-            >
-              <img
-                className="w-5 h-5"
-                height="24"
-                width="24"
-                crossOrigin="anonymous"
-                src="https://cdn.simpleicons.org/netlify"
-              />
-              <span className="mx-auto">
-                {!netlifyConn.user ? 'No Netlify Account Connected' : 'Deploy to Netlify'}
-              </span>
-              {netlifyConn.user && <NetlifyDeploymentLink />}
-            </DropdownMenu.Item>
+      <div className="flex items-center gap-2 text-sm">
+        {/* Standalone Publish button (Netlify) */}
+        <button
+          disabled={isDeploying || !activePreview || isStreaming || !netlifyConn.user}
+          onClick={handleNetlifyDeployClick}
+          className={classNames(
+            'flex items-center gap-1.5 px-4 py-1.5 rounded-md text-xs font-semibold text-white',
+            'bg-black hover:bg-gray-800 transition-colors',
+            '[&:is(:disabled)]:opacity-50 [&:is(:disabled)]:cursor-not-allowed',
+          )}
+          title={!netlifyConn.user ? 'No Netlify Account Connected' : 'Publish to Netlify'}
+        >
+          {deployingTo === 'netlify' ? (
+            <>
+              <span className="i-ph:spinner-gap animate-spin" />
+              Publishing...
+            </>
+          ) : (
+            'Publish'
+          )}
+          {netlifyConn.user && <NetlifyDeploymentLink />}
+        </button>
 
-            <DropdownMenu.Item
+        {/* Other deploy options dropdown */}
+        <div className="flex border border-bolt-elements-borderColor rounded-md overflow-hidden">
+          <DropdownMenu.Root>
+            <DropdownMenu.Trigger
+              disabled={isDeploying || !activePreview || isStreaming}
+              className="rounded-md items-center justify-center [&:is(:disabled,.disabled)]:cursor-not-allowed [&:is(:disabled,.disabled)]:opacity-60 px-3 py-1.5 text-xs bg-accent-500 text-white hover:text-bolt-elements-item-contentAccent [&:not(:disabled,.disabled)]:hover:bg-bolt-elements-button-primary-backgroundHover outline-accent-500 flex gap-1.7"
+            >
+              {isDeploying && deployingTo !== 'netlify' ? `Deploying to ${deployingTo}...` : 'Deploy'}
+              <span className={classNames('i-ph:caret-down transition-transform')} />
+            </DropdownMenu.Trigger>
+            <DropdownMenu.Content
               className={classNames(
-                'cursor-pointer flex items-center w-full px-4 py-2 text-sm text-bolt-elements-textPrimary hover:bg-bolt-elements-item-backgroundActive gap-2 rounded-md group relative',
-                {
-                  'opacity-60 cursor-not-allowed': isDeploying || !activePreview || !vercelConn.user,
-                },
+                'z-[250]',
+                'bg-bolt-elements-background-depth-2',
+                'rounded-lg shadow-lg',
+                'border border-bolt-elements-borderColor',
+                'animate-in fade-in-0 zoom-in-95',
+                'py-1',
               )}
-              disabled={isDeploying || !activePreview || !vercelConn.user}
-              onClick={handleVercelDeployClick}
+              sideOffset={5}
+              align="end"
             >
-              <img
-                className="w-5 h-5 bg-black p-1 rounded"
-                height="24"
-                width="24"
-                crossOrigin="anonymous"
-                src="https://cdn.simpleicons.org/vercel/white"
-                alt="vercel"
-              />
-              <span className="mx-auto">{!vercelConn.user ? 'No Vercel Account Connected' : 'Deploy to Vercel'}</span>
-              {vercelConn.user && <VercelDeploymentLink />}
-            </DropdownMenu.Item>
+              <DropdownMenu.Item
+                className={classNames(
+                  'cursor-pointer flex items-center w-full px-4 py-2 text-sm text-bolt-elements-textPrimary hover:bg-bolt-elements-item-backgroundActive gap-2 rounded-md group relative',
+                  { 'opacity-60 cursor-not-allowed': isDeploying || !activePreview || !vercelConn.user },
+                )}
+                disabled={isDeploying || !activePreview || !vercelConn.user}
+                onClick={handleVercelDeployClick}
+              >
+                <img
+                  className="w-5 h-5 bg-black p-1 rounded"
+                  height="24"
+                  width="24"
+                  crossOrigin="anonymous"
+                  src="https://cdn.simpleicons.org/vercel/white"
+                  alt="vercel"
+                />
+                <span className="mx-auto">{!vercelConn.user ? 'No Vercel Account Connected' : 'Deploy to Vercel'}</span>
+                {vercelConn.user && <VercelDeploymentLink />}
+              </DropdownMenu.Item>
 
-            <DropdownMenu.Item
-              className={classNames(
-                'cursor-pointer flex items-center w-full px-4 py-2 text-sm text-bolt-elements-textPrimary hover:bg-bolt-elements-item-backgroundActive gap-2 rounded-md group relative',
-                {
-                  'opacity-60 cursor-not-allowed': isDeploying || !activePreview,
-                },
-              )}
-              disabled={isDeploying || !activePreview}
-              onClick={handleGitHubDeployClick}
-            >
-              <img
-                className="w-5 h-5"
-                height="24"
-                width="24"
-                crossOrigin="anonymous"
-                src="https://cdn.simpleicons.org/github"
-                alt="github"
-              />
-              <span className="mx-auto">Deploy to GitHub</span>
-            </DropdownMenu.Item>
+              <DropdownMenu.Item
+                className={classNames(
+                  'cursor-pointer flex items-center w-full px-4 py-2 text-sm text-bolt-elements-textPrimary hover:bg-bolt-elements-item-backgroundActive gap-2 rounded-md group relative',
+                  {
+                    'opacity-60 cursor-not-allowed': isDeploying || !activePreview,
+                  },
+                )}
+                disabled={isDeploying || !activePreview}
+                onClick={handleGitHubDeployClick}
+              >
+                <img
+                  className="w-5 h-5"
+                  height="24"
+                  width="24"
+                  crossOrigin="anonymous"
+                  src="https://cdn.simpleicons.org/github"
+                  alt="github"
+                />
+                <span className="mx-auto">Deploy to GitHub</span>
+              </DropdownMenu.Item>
 
-            <DropdownMenu.Item
-              className={classNames(
-                'cursor-pointer flex items-center w-full px-4 py-2 text-sm text-bolt-elements-textPrimary hover:bg-bolt-elements-item-backgroundActive gap-2 rounded-md group relative',
-                {
-                  'opacity-60 cursor-not-allowed': isDeploying || !activePreview || !gitlabIsConnected,
-                },
-              )}
-              disabled={isDeploying || !activePreview || !gitlabIsConnected}
-              onClick={handleGitLabDeployClick}
-            >
-              <img
-                className="w-5 h-5"
-                height="24"
-                width="24"
-                crossOrigin="anonymous"
-                src="https://cdn.simpleicons.org/gitlab"
-                alt="gitlab"
-              />
-              <span className="mx-auto">{!gitlabIsConnected ? 'No GitLab Account Connected' : 'Deploy to GitLab'}</span>
-            </DropdownMenu.Item>
+              <DropdownMenu.Item
+                className={classNames(
+                  'cursor-pointer flex items-center w-full px-4 py-2 text-sm text-bolt-elements-textPrimary hover:bg-bolt-elements-item-backgroundActive gap-2 rounded-md group relative',
+                  {
+                    'opacity-60 cursor-not-allowed': isDeploying || !activePreview || !gitlabIsConnected,
+                  },
+                )}
+                disabled={isDeploying || !activePreview || !gitlabIsConnected}
+                onClick={handleGitLabDeployClick}
+              >
+                <img
+                  className="w-5 h-5"
+                  height="24"
+                  width="24"
+                  crossOrigin="anonymous"
+                  src="https://cdn.simpleicons.org/gitlab"
+                  alt="gitlab"
+                />
+                <span className="mx-auto">
+                  {!gitlabIsConnected ? 'No GitLab Account Connected' : 'Deploy to GitLab'}
+                </span>
+              </DropdownMenu.Item>
 
-            <DropdownMenu.Item
-              disabled
-              className="flex items-center w-full rounded-md px-4 py-2 text-sm text-bolt-elements-textTertiary gap-2 opacity-60 cursor-not-allowed"
-            >
-              <img
-                className="w-5 h-5"
-                height="24"
-                width="24"
-                crossOrigin="anonymous"
-                src="https://cdn.simpleicons.org/cloudflare"
-                alt="cloudflare"
-              />
-              <span className="mx-auto">Deploy to Cloudflare (Coming Soon)</span>
-            </DropdownMenu.Item>
-          </DropdownMenu.Content>
-        </DropdownMenu.Root>
+              <DropdownMenu.Item
+                disabled
+                className="flex items-center w-full rounded-md px-4 py-2 text-sm text-bolt-elements-textTertiary gap-2 opacity-60 cursor-not-allowed"
+              >
+                <img
+                  className="w-5 h-5"
+                  height="24"
+                  width="24"
+                  crossOrigin="anonymous"
+                  src="https://cdn.simpleicons.org/cloudflare"
+                  alt="cloudflare"
+                />
+                <span className="mx-auto">Deploy to Cloudflare (Coming Soon)</span>
+              </DropdownMenu.Item>
+            </DropdownMenu.Content>
+          </DropdownMenu.Root>
+        </div>
       </div>
 
       {/* GitHub Deployment Dialog */}
