@@ -118,7 +118,9 @@ import { DeploySuccessModal } from './components/deploy/DeploySuccessModal';
 
 const SUPABASE_URL = 'https://ltqzknbiymcgqshiyazg.supabase.co';
 
-async function exchangeAuthToken(token: string) {
+const REGRIM_HOME = 'https://regrim.com';
+
+async function exchangeAuthToken(token: string): Promise<boolean> {
   try {
     const response = await fetch(`${SUPABASE_URL}/functions/v1/verify-builder-token`, {
       method: 'POST',
@@ -128,7 +130,7 @@ async function exchangeAuthToken(token: string) {
 
     if (!response.ok) {
       console.warn('[Auth] Token verification failed:', response.status);
-      return;
+      return false;
     }
 
     const data = (await response.json()) as { user?: { id: string; email: string; metadata?: unknown } };
@@ -137,9 +139,14 @@ async function exchangeAuthToken(token: string) {
     if (user) {
       localStorage.setItem('regrim_user', JSON.stringify(user));
       console.log('[Auth] User authenticated:', user.email);
+
+      return true;
     }
+
+    return false;
   } catch (error) {
     console.warn('[Auth] Token exchange error:', error);
+    return false;
   } finally {
     // Always remove token from URL regardless of outcome
     const url = new URL(window.location.href);
@@ -148,16 +155,32 @@ async function exchangeAuthToken(token: string) {
   }
 }
 
+function redirectToHome() {
+  window.location.href = REGRIM_HOME;
+}
+
 export default function App() {
   const theme = useStore(themeStore);
 
   useEffect(() => {
-    // Exchange auth_token from regrim.com if present
     const params = new URLSearchParams(window.location.search);
     const authToken = params.get('auth_token');
 
     if (authToken) {
-      exchangeAuthToken(authToken);
+      // Incoming from regrim.com — exchange token first
+      exchangeAuthToken(authToken).then((success) => {
+        if (!success) {
+          redirectToHome();
+        }
+      });
+    } else {
+      // No token in URL — check if already authenticated
+      const user = localStorage.getItem('regrim_user');
+
+      if (!user) {
+        redirectToHome();
+        return;
+      }
     }
 
     initializeNetlifyConnection();
