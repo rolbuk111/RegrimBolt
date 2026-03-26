@@ -133,7 +133,7 @@ export const DeployButton = ({
           disabled={isDeploying || !activePreview || isStreaming || !netlifyConn.user}
           onClick={handleNetlifyDeployClick}
           className={classNames(
-            'flex items-center gap-1.5 px-4 py-1.5 rounded-md text-xs font-semibold text-white',
+            'flex items-center gap-1.5 px-4 py-1.5 h-7 rounded-md text-xs font-semibold text-white',
             'bg-blue-600 hover:bg-blue-700 transition-colors',
             '[&:is(:disabled)]:opacity-50 [&:is(:disabled)]:cursor-not-allowed',
           )}
