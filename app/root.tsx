@@ -116,10 +116,50 @@ import { logStore } from './lib/stores/logs';
 import { initializeNetlifyConnection } from './lib/stores/netlify';
 import { DeploySuccessModal } from './components/deploy/DeploySuccessModal';
 
+const SUPABASE_URL = 'https://ltqzknbiymcgqshiyazg.supabase.co';
+
+async function exchangeAuthToken(token: string) {
+  try {
+    const response = await fetch(`${SUPABASE_URL}/functions/v1/verify-builder-token`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ token }),
+    });
+
+    if (!response.ok) {
+      console.warn('[Auth] Token verification failed:', response.status);
+      return;
+    }
+
+    const data = (await response.json()) as { user?: { id: string; email: string; metadata?: unknown } };
+    const { user } = data;
+
+    if (user) {
+      localStorage.setItem('regrim_user', JSON.stringify(user));
+      console.log('[Auth] User authenticated:', user.email);
+    }
+  } catch (error) {
+    console.warn('[Auth] Token exchange error:', error);
+  } finally {
+    // Always remove token from URL regardless of outcome
+    const url = new URL(window.location.href);
+    url.searchParams.delete('auth_token');
+    window.history.replaceState({}, '', url.toString());
+  }
+}
+
 export default function App() {
   const theme = useStore(themeStore);
 
   useEffect(() => {
+    // Exchange auth_token from regrim.com if present
+    const params = new URLSearchParams(window.location.search);
+    const authToken = params.get('auth_token');
+
+    if (authToken) {
+      exchangeAuthToken(authToken);
+    }
+
     initializeNetlifyConnection();
 
     logStore.logSystem('Application initialized', {
