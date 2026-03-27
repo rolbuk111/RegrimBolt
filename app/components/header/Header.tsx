@@ -22,6 +22,12 @@ export function Header() {
           <img src="/regrim-logo.svg" alt="Regrim" className="h-[60px] inline-block" />
         </a>
       </div>
+      <a
+        href="https://regrim.com/dashboard"
+        className="ml-4 text-sm font-medium text-bolt-elements-textPrimary hover:text-accent transition-colors"
+      >
+        Dashboard
+      </a>
       {chat.started && ( // Display ChatDescription and HeaderActionButtons only when the chat has started.
         <>
           <span className="flex-1 px-4 truncate text-center text-bolt-elements-textPrimary">
