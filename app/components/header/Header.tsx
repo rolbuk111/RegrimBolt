@@ -24,7 +24,7 @@ export function Header() {
       </div>
       <a
         href="https://regrim.com/dashboard"
-        className="ml-4 text-sm font-medium text-bolt-elements-textPrimary hover:text-accent transition-colors"
+        className="ml-4 text-sm font-medium px-3 py-1.5 rounded-md border border-bolt-elements-borderColor text-bolt-elements-textPrimary hover:border-accent hover:text-accent transition-colors"
       >
         Dashboard
       </a>
