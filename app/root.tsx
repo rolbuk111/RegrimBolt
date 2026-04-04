@@ -182,8 +182,10 @@ export default function App() {
         return;
       }
 
-      // Redirect to most recent chat if on home page
-      if (window.location.pathname === '/') {
+      // Redirect to most recent chat if on home page and no incoming prompt
+      const hasIncomingPrompt = params.get('prompt') || params.get('idea');
+
+      if (window.location.pathname === '/' && !hasIncomingPrompt) {
         import('~/lib/persistence/db').then(async ({ openDatabase, getAll }) => {
           const database = await openDatabase();
 
