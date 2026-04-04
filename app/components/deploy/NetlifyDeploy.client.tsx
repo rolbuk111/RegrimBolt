@@ -229,36 +229,7 @@ export function useNetlifyDeploy() {
       });
 
       // Show success modal
-      const siteUrl = deploymentStatus.ssl_url || deploymentStatus.url;
-      deploySuccessUrl.set(siteUrl);
-
-      // Save project to Supabase on successful deploy
-      try {
-        const regrimUser = localStorage.getItem('regrim_user');
-
-        if (regrimUser) {
-          const user = JSON.parse(regrimUser) as { id: string; email: string };
-          const messages = JSON.parse(localStorage.getItem(`bolt-messages-${currentChatId}`) || '[]');
-
-          await fetch('https://ltqzknbiymcgqshiyazg.supabase.co/functions/v1/save-project', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              user_id: user.id,
-              chat_id: currentChatId,
-              netlify_url: siteUrl,
-              netlify_site_id: data.site?.id || null,
-              project_name: artifact.title || 'Untitled Project',
-              messages,
-            }),
-          });
-
-          console.log('[Regrim] Project saved to Supabase');
-        }
-      } catch (saveError) {
-        // Non-critical — don't block the user if save fails
-        console.warn('[Regrim] Failed to save project to Supabase:', saveError);
-      }
+      deploySuccessUrl.set(deploymentStatus.ssl_url || deploymentStatus.url);
 
       return true;
     } catch (error) {
