@@ -181,6 +181,25 @@ export default function App() {
         redirectToHome();
         return;
       }
+
+      // Redirect to most recent chat if on home page
+      if (window.location.pathname === '/') {
+        import('~/lib/persistence/db').then(async ({ openDatabase, getAll }) => {
+          const database = await openDatabase();
+
+          if (!database) {
+            return;
+          }
+
+          const chats = await getAll(database);
+
+          if (chats.length > 0) {
+            // Sort by timestamp descending, pick most recent
+            const latest = chats.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())[0];
+            window.location.href = `/chat/${latest.urlId || latest.id}`;
+          }
+        });
+      }
     }
 
     initializeNetlifyConnection();
