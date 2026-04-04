@@ -341,6 +341,9 @@ export const Menu = () => {
           <div className="text-gray-900 dark:text-white font-medium"></div>
           <div className="flex items-center gap-3">
             <HelpButton onClick={() => window.open('https://stackblitz-labs.github.io/bolt.diy/', '_blank')} />
+            <span className="font-medium text-sm text-gray-900 dark:text-white truncate">
+              {profile?.username || 'Guest User'}
+            </span>
             <div className="flex items-center justify-center w-[32px] h-[32px] overflow-hidden bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-500 rounded-full shrink-0">
               {profile?.avatar ? (
                 <img
@@ -362,7 +365,7 @@ export const Menu = () => {
             <div className="flex gap-2">
               <a
                 href="/"
-                className="hidden flex-1 flex gap-2 items-center bg-purple-50 dark:bg-purple-500/10 text-purple-700 dark:text-purple-300 hover:bg-purple-100 dark:hover:bg-purple-500/20 rounded-lg px-4 py-2 transition-colors"
+                className="flex-1 flex gap-2 items-center bg-purple-50 dark:bg-purple-500/10 text-purple-700 dark:text-purple-300 hover:bg-purple-100 dark:hover:bg-purple-500/20 rounded-lg px-4 py-2 transition-colors"
               >
                 <span className="inline-block i-ph:plus-circle h-4 w-4" />
                 <span className="text-sm font-medium">Start new chat</span>
