@@ -16,8 +16,12 @@ export function HeaderActionButtons({ chatStarted: _chatStarted }: HeaderActionB
 
   return (
     <div className="flex items-center gap-1">
-      {/* Publish Button (Netlify) */}
-      {shouldShowButtons && <DeployButton />}
+      {/* Publish Button (Netlify) - hidden */}
+      {shouldShowButtons && (
+        <div className="hidden">
+          <DeployButton />
+        </div>
+      )}
     </div>
   );
 }
