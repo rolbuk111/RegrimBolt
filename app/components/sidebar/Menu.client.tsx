@@ -53,7 +53,7 @@ function CurrentDateTime() {
   }, []);
 
   return (
-    <div className="flex items-center gap-2 px-4 py-2 text-sm text-gray-600 dark:text-gray-400 border-b border-gray-100 dark:border-gray-800/50">
+    <div className="flex items-center gap-2 px-4 py-2 text-sm text-bolt-elements-textSecondary border-b border-bolt-elements-borderColor">
       <div className="h-4 w-4 i-ph:clock opacity-80" />
       <div className="flex gap-2">
         <span>{dateTime.toLocaleDateString()}</span>
@@ -331,13 +331,13 @@ export const Menu = () => {
         variants={menuVariants}
         style={{ width: '340px' }}
         className={classNames(
-          'flex selection-accent flex-col side-menu fixed top-0 h-full rounded-r-2xl',
+          'flex selection-accent flex-col side-menu fixed top-0 h-full',
           'bg-white dark:bg-gray-950 border-r border-bolt-elements-borderColor',
-          'shadow-sm text-sm',
+          'text-sm',
           isSettingsOpen ? 'z-40' : 'z-sidebar',
         )}
       >
-        <div className="h-12 flex items-center justify-between px-4 border-b border-gray-100 dark:border-gray-800/50 bg-gray-50/50 dark:bg-gray-900/50 rounded-tr-2xl">
+        <div className="h-12 flex items-center justify-between px-4 border-b border-bolt-elements-borderColor">
           <div className="text-gray-900 dark:text-white font-medium"></div>
           <div className="flex items-center gap-3">
             <HelpButton onClick={() => window.open('https://stackblitz-labs.github.io/bolt.diy/', '_blank')} />
@@ -375,8 +375,8 @@ export const Menu = () => {
                 className={classNames(
                   'flex gap-1 items-center rounded-lg px-3 py-2 transition-colors',
                   selectionMode
-                    ? 'bg-purple-600 dark:bg-purple-500 text-white border border-purple-700 dark:border-purple-600'
-                    : 'bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700 border border-gray-200 dark:border-gray-700',
+                    ? 'bg-[#2563eb] text-white border border-[#1d4ed8]'
+                    : 'bg-gray-100 dark:bg-gray-800 text-bolt-elements-textSecondary hover:bg-gray-200 dark:hover:bg-gray-700 border border-bolt-elements-borderColor',
                 )}
                 aria-label={selectionMode ? 'Exit selection mode' : 'Enter selection mode'}
               >
@@ -388,7 +388,7 @@ export const Menu = () => {
                 <span className="i-ph:magnifying-glass h-4 w-4 text-gray-400 dark:text-gray-500" />
               </div>
               <input
-                className="w-full bg-gray-50 dark:bg-gray-900 relative pl-9 pr-3 py-2 rounded-lg focus:outline-none focus:ring-1 focus:ring-purple-500/50 text-sm text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-500 border border-gray-200 dark:border-gray-800"
+                className="w-full bg-gray-50 dark:bg-gray-900 relative pl-9 pr-3 py-2 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#2563eb]/40 text-sm text-bolt-elements-textPrimary placeholder-bolt-elements-textTertiary border border-bolt-elements-borderColor"
                 type="search"
                 placeholder="Search chats..."
                 onChange={handleSearchChange}
